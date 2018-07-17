@@ -1,0 +1,18 @@
+<div class="form-group">
+    <label for="some_file_queue" class="col-sm-2 control-label">Attachments</label>
+    <div class="col-md-10">
+        <div id="attachment_list">
+            {% for attachment in attachments %}
+                <div id="delete_{{attachment.id}}">
+                 <span style="font-weight:bold;font-style:italic;color:#3C8DBC">{{attachment.file_name}}&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                 <a class="fa fa-close delete_attachment_edit" style="cursor:pointer" attachment_id="{{ attachment.id }}" file_path="{{ attachment.file_path }}" task_id="{{ attachment.task_id }}"></a>
+                </div>
+            {% endfor %}
+        </div>
+        <div></div>
+        <div id="some_file_queue"></div> 
+        <input id="file_upload" type="file" name="Filedata">   
+        <div id="file_uploadQueue" class="uploadifyQueue"></div>  
+        <p><span id="id_span_msg"></span></p> 
+    </div>
+</div>
