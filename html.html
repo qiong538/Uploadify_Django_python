@@ -1,3 +1,4 @@
+
 <div class="form-group">
     <label for="some_file_queue" class="col-sm-2 control-label">Attachments</label>
     <div class="col-md-10">
@@ -16,3 +17,70 @@
         <p><span id="id_span_msg"></span></p> 
     </div>
 </div>
+
+
+<script type="text/javascript">
+$(function () {
+    var file_name='';  
+    $('#file_upload').uploadify({  
+        'method'   : 'post',
+        'formData' :  {"upload_user": current_user},
+        'uploader'  : "{% url 'task:uploadify_script' %}",//根据文件存放地址改变 或者使用'/upload_script/'
+        'swf'       : "{% static 'plugins/uploadify3.2.1/uploadify.swf' %}", 
+        'cancelImg' : "{% static 'plugins/uploadify3.2.1/cancel.png' %}" ,//根据文件存放地址改变  
+        'folder'    : "{% static 'uploads' %}",  
+        'auto'      : true,//false,//  
+        'multi': true,//设置可以上传多个文件  
+        'queueSizeLimit' : 5,  //一次最多上传5个文件 
+        'queueID'  : 'some_file_queue',
+        'buttonText':'Select Files',     
+        'removeCompleted':false,//  
+        'width'    : 100,
+        'fileSizeLimit':1024*10,//设置上传文件大小单位kb  
+        'fileTypeExts':'*.*',//设置上传文件类型为常用文档格式  
+        'fileTypeDesc':'支持文档格式',               
+        'onInit': function () {},  
+        // 'onUploadStart' : function(file) {
+        //     alert('Starting to upload ' + file.name);
+        //      },
+        'onError': function (event,ID,fileObj,errorObj) {  
+            $('#id_span_msg').html("上传失败，错误码:"+errorObj.type+" "+errorObj.info);  
+            },  
+        'onSelect': function (e, queueId, fileObj) {  
+            $('#id_span_msg').html("");  
+            },  
+        'onComplete': function(event, ID, fileObj, response, data) {  
+            var result = eval ("(" + response + ")");  
+            file_name=result.save_name;  
+            },
+        'onUploadSuccess': function(file, data, response) {  
+            var data = eval('(' + data + ')'); 
+            var delete_file=data["file_path"];                  
+            var cancel = $("#" + file.id + " .cancel a");
+           
+            if (cancel) {
+                cancel.attr("deletefileid",file.id);
+                cancel.on('click', function () {
+                    $.ajax({
+                        url: '{% url "task:delete_one_attachment" %}',
+                        type: 'POST',
+                        dataType: 'json',
+                        data: {'delete_filename':delete_file, "delete_flag": "True", csrfmiddlewaretoken: '{{ csrf_token }}'},
+                        success: function (data) {
+                            if(data["delete_failed_info"].length == 0){
+                                alert(data["delete_failed_info"])
+                            }
+                        },
+                    });                                
+                    var deletefileid = cancel.attr("deletefileid");
+                    $("#uploadify").uploadify("cancel",deletefileid);//将上传队列中的文件删除.
+                });
+
+            }
+        },
+        'onClearQueue' : function(queueItemCount) {
+                    alert(queueItemCount + ' file(s) were removed from the queue');
+                } 
+    });
+});
+</sript>
